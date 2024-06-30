@@ -11,11 +11,9 @@ import Combine
 
 
 protocol MovieSearchRetrievalService {
-    func getMovieDetails(name: String, year: String) -> (MovieSearchModel?, NetworkServiceError?)
+    func getMovieDetails(name: String) -> (MovieSearchModel?, NetworkServiceError?)
     func getDefaultMovieDetails() -> (MovieSearchModel?, NetworkServiceError?)
 }
-
-
 
 
 class MovieSearchResultsProvider: MovieSearchRetrievalService {
@@ -27,14 +25,17 @@ class MovieSearchResultsProvider: MovieSearchRetrievalService {
         self.apiServiceClient = apiServiceClient
     }
     
-    func getMovieDetails(name: String, year: String) -> (MovieSearchModel?, NetworkServiceError?) {
-        return fetchData(from: .getMovieDetails(fromName: name, fromYear: year), response: MovieSearchModel.self)
+    func getMovieDetails(name: String) -> (MovieSearchModel?, NetworkServiceError?) {
+        return fetchData(from: .getMovieDetails(fromName: name), response: MovieSearchModel.self)
     }
     
     func getDefaultMovieDetails() -> (MovieSearchModel?, NetworkServiceError?){
         return fetchData(from: .getDefaultMovieDetails, response: MovieSearchModel.self)
     }
-    
+}
+
+
+extension MovieSearchResultsProvider {
     func fetchData<T: Decodable>(from endPoint: MovieSearchEndPoint, response: T.Type) -> (T?, NetworkServiceError?){
         var result: T?
         var networkError: NetworkServiceError?
@@ -53,4 +54,3 @@ class MovieSearchResultsProvider: MovieSearchRetrievalService {
         return (result, networkError)
     }
 }
-

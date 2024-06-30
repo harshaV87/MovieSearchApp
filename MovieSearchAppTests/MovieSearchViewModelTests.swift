@@ -6,30 +6,56 @@
 //
 
 import XCTest
+import UIKit
+import NetworkKit
+@testable import MovieSearchApp
 
 final class MovieSearchViewModelTests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    var movieSearchMock : MovieSearchRetrievalService!
+    var movieSearchViewModel: MovieSearchViewModelInterface!
+    
+    override func setUp() {}
+    
+    func testModelSuccessFromService() {
+        let mockMovie = MovieSearchModel(title: "Test Movie", year: "2022", rated: "", released: "", runtime: "", genre: "", director: "", writer: "", actors: "", plot: "", language: "", country: "", awards: "", poster: "", ratings: [], metascore: "", imdbRating: "", imdbVotes: "", imdbID: "", type: "", dvd: "", boxOffice: "", production: "", website: "", response: "")
+        
+        movieSearchMock = MockMovieSearchService(output: (mockMovie, nil))
+        movieSearchViewModel = MovieSearchViewModel(movieSearchService: movieSearchMock)
+        let result =  movieSearchMock.getMovieDetails(name: "")
+          XCTAssertNotNil(result.0)
+          XCTAssertNil(result.1)
     }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    
+    func testModelFailureFromService() {
+        movieSearchMock = MockMovieSearchService(output: (nil, NetworkServiceError.unknown))
+        movieSearchViewModel = MovieSearchViewModel(movieSearchService: movieSearchMock)
+      let result =  movieSearchMock.getMovieDetails(name: "")
+        XCTAssertNil(result.0)
+        XCTAssertNotNil(result.1)
+        XCTAssertEqual(result.1?.localizedDescription, "An unknown error has occured")
     }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    
+    override func tearDown() {
+        movieSearchViewModel = nil
+        movieSearchMock = nil
     }
+}
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+
+class MockMovieSearchService: MovieSearchRetrievalService {
+   
+    var output: (MovieObject: MovieSearchModel?, ServiceOutError: NetworkServiceError?)
+       
+    init(output: (MovieObject: MovieSearchModel?, ServiceOutError: NetworkServiceError?)) {
+        self.output = output
     }
-
+    
+    func getMovieDetails(name: String) -> (MovieSearchApp.MovieSearchModel?, NetworkKit.NetworkServiceError?) {
+        return (output.MovieObject, output.ServiceOutError)
+    }
+    
+    func getDefaultMovieDetails() -> (MovieSearchApp.MovieSearchModel?, NetworkKit.NetworkServiceError?) {
+        return (output.MovieObject, output.ServiceOutError)
+    }
 }
