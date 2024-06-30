@@ -7,18 +7,31 @@
 
 import SwiftUI
 
+
 struct ContentView: View {
+    
+   @StateObject var viewModel = MovieSearchViewModel(movieSearchService: MovieSearchResultsProvider())
+    
     var body: some View {
         VStack {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text((viewModel.movieDetails?.country ?? viewModel.serviceError) ?? "")
         }
-        .padding()
+        .padding().onAppear() {
+            viewModel.fetchMovieDetails(name: "Guardians+of+the+Galaxy+Vol.", year: "2017")
+        }
     }
 }
 
 #Preview {
     ContentView()
 }
+
+
+
+
+
+
+
