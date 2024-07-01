@@ -12,7 +12,7 @@ struct MovieSearchAppApp: App {
    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(viewModel: MovieSearchViewModel(movieSearchService: MovieSearchResultsProvider(), debounceSearchService: SearchDebounce()))
         }
     }
 }
