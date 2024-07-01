@@ -8,6 +8,7 @@
 import XCTest
 import UIKit
 import NetworkKit
+import Combine
 @testable import MovieSearchApp
 
 final class MovieSearchViewModelTests: XCTestCase {
@@ -21,7 +22,7 @@ final class MovieSearchViewModelTests: XCTestCase {
         let mockMovie = MovieSearchModel(title: "Test Movie", year: "2022", rated: "", released: "", runtime: "", genre: "", director: "", writer: "", actors: "", plot: "", language: "", country: "", awards: "", poster: "", ratings: [], metascore: "", imdbRating: "", imdbVotes: "", imdbID: "", type: "", dvd: "", boxOffice: "", production: "", website: "", response: "")
         
         movieSearchMock = MockMovieSearchService(output: (mockMovie, nil))
-        movieSearchViewModel = MovieSearchViewModel(movieSearchService: movieSearchMock)
+        movieSearchViewModel = MovieSearchViewModel(movieSearchService: movieSearchMock, debounceSearchService: MockDebounceService(completionInjection: ""))
         let result =  movieSearchMock.getMovieDetails(name: "")
           XCTAssertNotNil(result.0)
           XCTAssertNil(result.1)
@@ -29,7 +30,7 @@ final class MovieSearchViewModelTests: XCTestCase {
     
     func testModelFailureFromService() {
         movieSearchMock = MockMovieSearchService(output: (nil, NetworkServiceError.unknown))
-        movieSearchViewModel = MovieSearchViewModel(movieSearchService: movieSearchMock)
+        movieSearchViewModel = MovieSearchViewModel(movieSearchService: movieSearchMock, debounceSearchService: MockDebounceService(completionInjection: ""))
       let result =  movieSearchMock.getMovieDetails(name: "")
         XCTAssertNil(result.0)
         XCTAssertNotNil(result.1)
@@ -57,5 +58,19 @@ class MockMovieSearchService: MovieSearchRetrievalService {
     
     func getDefaultMovieDetails() -> (MovieSearchApp.MovieSearchModel?, NetworkKit.NetworkServiceError?) {
         return (output.MovieObject, output.ServiceOutError)
+    }
+}
+
+
+class MockDebounceService: SearchDebounceService {
+    
+    var completionInjection: String
+    
+    init(completionInjection: String) {
+        self.completionInjection = completionInjection
+    }
+    
+    func getSearchText(textPublisher: AnyPublisher<String, Never>, completion: @escaping (String?) -> ()) {
+        completion(completionInjection)
     }
 }

@@ -10,7 +10,7 @@ import Combine
 import NetworkKit
 @testable import MovieSearchApp
 
-final class MockDebounceSearchServiceTests: XCTestCase {
+final class MovieViewModelSearchServiceTests: XCTestCase {
 
     var sut : MovieSearchViewModelInterface!
     var searchService: SearchDebounceService!
@@ -35,17 +35,6 @@ final class MockDebounceSearchServiceTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             XCTAssertEqual(self?.movieSearchMock.defaultMovieDetailsCalled, true)
             XCTAssertEqual(self?.movieSearchMock.getMovieDetailsCalled, false)
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 2.0)
-    }
-    
-    func testInitialisationWithEnteredSearchText() {
-        sut = MovieSearchViewModel(movieSearchService: MockMovieRetrievalServiceForDebounce(), debounceSearchService: MockDebounceService(completionInjection: "enter"))
-        let expectation = XCTestExpectation(description: "NonEmptySearchText")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            XCTAssertEqual(self?.movieSearchMock.defaultMovieDetailsCalled, false)
-            XCTAssertEqual(self?.movieSearchMock.getMovieDetailsCalled, true)
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 2.0)
